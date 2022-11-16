@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">To-Do list</string>
+    <string name="hint_title">Enter title</string>
+    <string name="hint_text">What do you need to do?</string>
+    <string name="save">Сохранить</string>
+    <string name="add">Add</string>
+    <string name="notes">Notes</string>
+    <string name="tasks">Tasks</string>
+    <string name="done">Done</string>
+</resources>

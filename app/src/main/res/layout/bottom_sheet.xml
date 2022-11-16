@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:behavior_hideable="false"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_peekHeight="0dp"
+    android:id="@+id/bottomSheet"
+    android:background="@drawable/my_bg"
+    android:fitsSystemWindows="true">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="6dp"
+        app:layout_anchorGravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/dash_bg"
+        android:id="@+id/dash"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dash"
+        android:layout_centerHorizontal="true"
+        android:text="@string/tasks"
+        android:textSize="16sp"
+        android:textColor="#FFF"
+        android:id="@+id/tasks_check"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tasks_check"
+        android:layout_above="@id/saveButton">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_margin="18dp"
+                android:textColor="@color/textColor"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_title"
+                android:textColorHint="#30609E"
+                android:textSize="30sp"
+                android:inputType="textMultiLine"
+                android:background="@null"
+                android:id="@+id/editTitle"
+                android:translationY="18dp"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/hint_text"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:layout_below="@+id/editTitle"
+                android:layout_margin="18dp"
+                android:textSize="24sp"
+                android:background="@null"
+                android:id="@+id/editText"
+                android:translationY="18dp"
+                android:autofillHints="" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="22dp"
+        style="@style/saveButton"
+        android:text="@string/save"
+        android:id="@+id/saveButton" />
+
+</RelativeLayout>

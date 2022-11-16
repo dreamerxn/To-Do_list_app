@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Список дел</string>
+    <string name="hint_title">Введите заголовок</string>
+    <string name="hint_text">Что вам нужно сделать?</string>
+    <string name="save">Save</string>
+    <string name="add">Добавить</string>
+    <string name="notes">Заметки</string>
+    <string name="tasks">Задачи</string>
+    <string name="done">Выполнени</string>
+</resources>
