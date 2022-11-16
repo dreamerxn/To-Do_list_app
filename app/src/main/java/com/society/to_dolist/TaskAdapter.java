@@ -18,6 +18,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -58,6 +60,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
             linearLayout = itemView.findViewById(R.id.parentCard);
             liner = itemView.findViewById(R.id.liner);
             checkBox = itemView.findViewById(R.id.isTaskCheck);
+            getAccount();
+
+            checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String sTitle, sDesc, sUID;
+                    sTitle = Title.getText().toString();
+                    sDesc = Desc.getText().toString();
+                    sUID = tasks.get(getAdapterPosition()).getUID();
+                    tasks.remove(getAdapterPosition());
+                    notifyItemRemoved(getAdapterPosition());
+                    pushData(sTitle, sDesc, sUID, getAdapterPosition());
+                    delFromFireDatabase(sUID);
+                    notifyItemRemoved(getAdapterPosition());
+                }
+            });
         }
     }
     @NonNull
@@ -75,30 +93,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
         holder.liner.setBackgroundResource(R.color.tasks_bg);
         holder.linearLayout.setBackgroundResource(R.color.tasks_bg);
         holder.checkBox.setVisibility(View.VISIBLE);
-
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onClick(View v) {
-                getAccount();
-                if (v!=null){
-                    if (tasks.size()!=0) {
-                        String desc = tasks.get(position).getDesc();
-                        String title = tasks.get(position).getTitle();
-                        String UID = tasks.get(position).getUID();
-                        delFromFireDatabase(UID, "Tasks", holder.getAdapterPosition());
-                        notifyDataSetChanged();
-                        pushData(title, desc, UID, position);
-                        notifyDataSetChanged();
-                    }
-                    else {
-                        Toast.makeText(context, "Error has ocuired", Toast.LENGTH_SHORT).show();
-                        notifyDataSetChanged();
-                    }
-
-                }
-            }
-        });
+        holder.checkBox.setChecked(false);
 
     }
 
@@ -116,34 +111,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
             acId = account.getId();
         }
     }
-    private void delFromFireDatabase(String UID, String path, int pos){
+    private void delFromFireDatabase(String UID){
         ref = FirebaseDatabase.getInstance(URL).getReference(acId+"/Tasks");
         Query query = ref.orderByChild("uid").equalTo(UID);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Toast.makeText(context, "ll "+ref.getKey(), Toast.LENGTH_SHORT).show();
-                    tasks.remove(pos);
-                    notifyItemRemoved(pos);
                     dataSnapshot.getRef().removeValue();
-                    notifyDataSetChanged();
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(context, "Error has ocuires", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
     public void pushData(String Title, String Desc, String UID, int pos){
         database = FirebaseDatabase.getInstance(URL);
         ref = database.getReference(acId+"/Done");
         Notes notes = new Notes(Title, Desc, UID);
         ref.push().setValue(notes);
-        notifyItemInserted(pos);
 
     }
 }

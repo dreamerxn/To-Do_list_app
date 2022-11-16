@@ -63,6 +63,19 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
             linearLayout = itemView.findViewById(R.id.parentCard);
             liner = itemView.findViewById(R.id.liner);
             checkBox = itemView.findViewById(R.id.isTaskCheck);
+            getAccount();
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(mContext, "GGGGGG", Toast.LENGTH_SHORT).show();
+                    String sUID;
+                    sUID = notes.get(getAdapterPosition()).getUID();
+                    delFromFireDatabase(sUID);
+                    notifyItemRemoved(getAdapterPosition());
+                    return true;
+
+                }
+            });
         }
 
     }
@@ -81,58 +94,8 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
     public void onBindViewHolder(@NonNull recAdapter.MyViewClass holder, @SuppressLint("RecyclerView") int position) {
         holder.Desc.setText(notes.get(position).getDesc());
         holder.Title.setText(notes.get(position).getTitle());
-        if (color == 0){
-            holder.liner.setBackgroundResource(R.color.notes_bg);
-            holder.linearLayout.setBackgroundResource(R.color.notes_bg);
-        }
-        else if(color == 1){
-            holder.liner.setBackgroundResource(R.color.tasks_bg);
-            holder.linearLayout.setBackgroundResource(R.color.tasks_bg);
-            holder.checkBox.setVisibility(View.VISIBLE);
-        }
-        else if(color == 2){
-            holder.checkBox.setVisibility(View.VISIBLE);
-            holder.checkBox.setChecked(true);
-            holder.checkBox.setEnabled(false);
-            holder.liner.setBackgroundResource(R.color.done_bg);
-            holder.linearLayout.setBackgroundResource(R.color.done_bg);
-        }
-//        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-//            @SuppressLint("NotifyDataSetChanged")
-//            @Override
-//            public void onClick(View v) {
-//                getAccount();
-//                if (v!=null){
-//                    if (notes.size()!=0) {
-//                        String desc = notes.get(position).getDesc();
-//                        String title = notes.get(position).getTitle();
-//                        String UID = notes.get(position).getUID();
-//                        delFromFireDatabase(UID, "Tasks", holder.getAdapterPosition());
-//                        notifyDataSetChanged();
-//                        pushData(title, desc, UID, position);
-//                        notifyDataSetChanged();
-//                    }
-//                    else {
-//                        Toast.makeText(mContext, "Error ocuired", Toast.LENGTH_SHORT).show();
-//                        notifyDataSetChanged();
-//                    }
-//
-//                }
-//            }
-//        });
-        holder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public boolean onLongClick(View v) {
-                getAccount();
-                String UID = notes.get(position).getUID();
-                database = FirebaseDatabase.getInstance(URL);
-                delFromFireDatabase(UID, "Notes", holder.getAdapterPosition());
-                delFromFireDatabase(UID, "Done", holder.getAdapterPosition());
-                notifyDataSetChanged();
-                return true;
-            }
-        });
+        holder.linearLayout.setBackgroundResource(R.color.notes_bg);
+        holder.liner.setBackgroundResource(R.color.notes_bg);
 
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,6 +107,21 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
                 intent.putExtra("desc", notes.get(position).getDesc());
                 intent.putExtra("uid", notes.get(position).getUID());
                 v.getContext().startActivity(intent);
+            }
+        });
+        holder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                String sUID;
+                sUID = notes.get(position).getUID();
+                delFromFireDatabase(sUID);
+                notifyItemRemoved(position);
+                if (getItemCount() == 1){
+                    notes.remove(position);
+                    notifyItemRemoved(position);
+                }
+                return true;
+
             }
         });
     }
@@ -160,16 +138,7 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
         }
     }
 
-    public void pushData(String Title, String Desc, String UID, int pos){
-        database = FirebaseDatabase.getInstance(URL);
-        ref = database.getReference(acId+"/Done");
-        Notes notes = new Notes(Title, Desc, UID);
-        ref.push().setValue(notes);
-        notifyItemInserted(pos);
-
-    }
-
-    private void delFromFireDatabase(String UID, String path, int pos){
+    private void delFromFireDatabase(String UID){
         ref = FirebaseDatabase.getInstance(URL).getReference(acId+"/Notes");
         Query query = ref.orderByChild("uid").equalTo(UID);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -177,9 +146,6 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Toast.makeText(mContext, "ll "+ref.getKey(), Toast.LENGTH_SHORT).show();
-                    notes.remove(pos);
-                    notifyItemRemoved(pos);
                     dataSnapshot.getRef().removeValue();
                     notifyDataSetChanged();
                 }
@@ -192,28 +158,28 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
         });
     }
 
-    private void getParent(String UID, String path, int pos){
-        ref = FirebaseDatabase.getInstance(URL).getReference(acId+"/"+path);
-        Query query = ref.orderByChild("uid").equalTo(UID);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Toast.makeText(mContext, "ll "+ref.getKey(), Toast.LENGTH_SHORT).show();
-                    notes.remove(pos);
-                    notifyItemRemoved(pos);
-                    dataSnapshot.getRef().removeValue();
-                    notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(mContext, "Error has ocuires", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    private void getParent(String UID, String path, int pos){
+//        ref = FirebaseDatabase.getInstance(URL).getReference(acId+"/"+path);
+//        Query query = ref.orderByChild("uid").equalTo(UID);
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+//                    Toast.makeText(mContext, "ll "+ref.getKey(), Toast.LENGTH_SHORT).show();
+//                    notes.remove(pos);
+//                    notifyItemRemoved(pos);
+//                    dataSnapshot.getRef().removeValue();
+//                    notifyDataSetChanged();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(mContext, "Error has ocuires", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     @Override
     public int getItemCount() {

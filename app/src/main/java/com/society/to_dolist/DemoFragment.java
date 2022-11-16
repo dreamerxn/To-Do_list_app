@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -85,6 +86,8 @@ public class DemoFragment extends Fragment {
             getDones(recyclerView, acId+"/Done");
 
         }
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     public void getDones(RecyclerView recyclerView, String mchild){
@@ -125,6 +128,7 @@ public class DemoFragment extends Fragment {
 
         taskAdapter = new TaskAdapter(tasks, getContext());
         recyclerView.setAdapter(taskAdapter);
+
         myData.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override

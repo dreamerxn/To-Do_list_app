@@ -7,16 +7,22 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -25,7 +31,7 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
     Context context;
     LayoutInflater layoutInflater;
     private FirebaseDatabase database;
-    private DatabaseReference databaseReference;
+    private DatabaseReference ref;
     GoogleSignInOptions gso;
     GoogleSignInClient gsc;
     String acId;
@@ -51,8 +57,57 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
             linearLayout = itemView.findViewById(R.id.parentCard);
             liner = itemView.findViewById(R.id.liner);
             checkBox = itemView.findViewById(R.id.isTaskCheck);
+            getAccount();
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    String sTitle, sDesc, sUID;
+                    sTitle = Title.getText().toString();
+                    sDesc = Desc.getText().toString();
+                    try {
+                        sUID =  dones.get(getAdapterPosition()).getUID();
+                        delFromFireDatabase(sUID);
+                        notifyDataSetChanged();
+                        if (getItemCount() == 1){
+                            dones.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+                        }
+                    }catch (Exception e){
+                        Toast.makeText(context, "Error has occured", Toast.LENGTH_SHORT).show();
+                    }
+
+                    return true;
+                }
+            });
         }
     }
+    private void delFromFireDatabase(String UId){
+        ref = FirebaseDatabase.getInstance(URL).getReference(acId+"/Done");
+        Query query = ref.orderByChild("uid").equalTo(UId);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    dataSnapshot.getRef().removeValue();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(context, "Error has ocuires", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public  void getAccount(){
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        gsc = GoogleSignIn.getClient(context, gso);
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
+        if(account !=null){
+            acId = account.getId();
+        }
+    }
+
     @NonNull
     @Override
     public DoneAdapter.MyDoneClass onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -67,6 +122,7 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
         holder.Desc.setText(dones.get(position).getDesc());
         holder.linearLayout.setBackgroundResource(R.color.done_bg);
         holder.liner.setBackgroundResource(R.color.done_bg);
+        holder.checkBox.setVisibility(View.VISIBLE);
         holder.checkBox.setChecked(true);
         holder.checkBox.setClickable(false);
     }
