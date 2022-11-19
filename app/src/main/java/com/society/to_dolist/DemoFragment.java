@@ -86,8 +86,8 @@ public class DemoFragment extends Fragment {
             getDones(recyclerView, acId+"/Done");
 
         }
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+//        recyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     public void getDones(RecyclerView recyclerView, String mchild){

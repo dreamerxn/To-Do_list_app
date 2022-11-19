@@ -64,17 +64,14 @@ public class recAdapter extends RecyclerView.Adapter<recAdapter.MyViewClass> {
             liner = itemView.findViewById(R.id.liner);
             checkBox = itemView.findViewById(R.id.isTaskCheck);
             getAccount();
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    Toast.makeText(mContext, "GGGGGG", Toast.LENGTH_SHORT).show();
-                    String sUID;
-                    sUID = notes.get(getAdapterPosition()).getUID();
-                    delFromFireDatabase(sUID);
-                    notifyItemRemoved(getAdapterPosition());
-                    return true;
+            itemView.setOnLongClickListener(v -> {
+                Toast.makeText(mContext, "GGGGGG", Toast.LENGTH_SHORT).show();
+                String sUID;
+                sUID = notes.get(getAdapterPosition()).getUID();
+                delFromFireDatabase(sUID);
+                notifyItemRemoved(getAdapterPosition());
+                return true;
 
-                }
             });
         }
 

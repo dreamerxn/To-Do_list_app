@@ -8,7 +8,7 @@
     android:elevation="6dp"
     app:cardCornerRadius="14dp"
     android:background="#FFF"
-    android:padding="10dp"
+    android:padding="8dp"
     android:id="@+id/recCard">
 
     <LinearLayout
@@ -39,15 +39,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/title"
-                android:layout_margin="4dp"
-                android:textSize="24sp"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:textSize="24sp"
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/desc"
-                android:layout_margin="8dp"
-                android:textSize="18sp"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="12dp"
+                android:textSize="18sp"
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
         </LinearLayout>
 

@@ -2,6 +2,7 @@ package com.society.to_dolist;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,6 +51,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
         LinearLayout linearLayout, liner;
         CheckBox checkBox;
 
+        @SuppressLint("NotifyDataSetChanged")
         public MyTaskViewClass(@NonNull View itemView) {
             super(itemView);
             Title = itemView.findViewById(R.id.title);
@@ -62,20 +62,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
             checkBox = itemView.findViewById(R.id.isTaskCheck);
             getAccount();
 
-            checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String sTitle, sDesc, sUID;
+            checkBox.setOnClickListener(v -> {
+                String sTitle, sDesc, sUID;
+
+                try {
                     sTitle = Title.getText().toString();
                     sDesc = Desc.getText().toString();
                     sUID = tasks.get(getAdapterPosition()).getUID();
-                    tasks.remove(getAdapterPosition());
-                    notifyItemRemoved(getAdapterPosition());
-                    pushData(sTitle, sDesc, sUID, getAdapterPosition());
                     delFromFireDatabase(sUID);
+                    pushData(sTitle, sDesc, sUID, getAdapterPosition());
                     notifyItemRemoved(getAdapterPosition());
+                    if (tasks.size() == 1){
+                        tasks.clear();
+                    }
+                }catch (Exception e){
+                    notifyDataSetChanged();
+                    Toast.makeText(context, "Error has occurred "+e, Toast.LENGTH_SHORT).show();
+                    Log.v("TAG", "GG  "+e);
                 }
             });
+
         }
     }
     @NonNull
@@ -123,7 +129,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyTaskViewClas
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(context, "Error has ocuires", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Error has occurred", Toast.LENGTH_SHORT).show();
             }
         });
     }

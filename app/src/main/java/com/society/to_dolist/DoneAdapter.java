@@ -30,7 +30,6 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
     List<Tasks> dones;
     Context context;
     LayoutInflater layoutInflater;
-    private FirebaseDatabase database;
     private DatabaseReference ref;
     GoogleSignInOptions gso;
     GoogleSignInClient gsc;
@@ -58,26 +57,21 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
             liner = itemView.findViewById(R.id.liner);
             checkBox = itemView.findViewById(R.id.isTaskCheck);
             getAccount();
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    String sTitle, sDesc, sUID;
-                    sTitle = Title.getText().toString();
-                    sDesc = Desc.getText().toString();
-                    try {
-                        sUID =  dones.get(getAdapterPosition()).getUID();
-                        delFromFireDatabase(sUID);
-                        notifyDataSetChanged();
-                        if (getItemCount() == 1){
-                            dones.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                        }
-                    }catch (Exception e){
-                        Toast.makeText(context, "Error has occured", Toast.LENGTH_SHORT).show();
+            itemView.setOnLongClickListener(v -> {
+                String sUID;
+                try {
+                    sUID =  dones.get(getAdapterPosition()).getUID();
+                    delFromFireDatabase(sUID);
+                    notifyItemRemoved(getAdapterPosition());
+                    if (dones.size() == 1){
+                        dones.clear();
                     }
-
-                    return true;
+                }catch (Exception e){
+                    notifyDataSetChanged();
+                    Toast.makeText(context, "Error has occurred", Toast.LENGTH_SHORT).show();
                 }
+
+                return true;
             });
         }
     }
@@ -112,8 +106,7 @@ public class DoneAdapter extends RecyclerView.Adapter<DoneAdapter.MyDoneClass> {
     @Override
     public DoneAdapter.MyDoneClass onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.rec_layout, parent, false);
-        MyDoneClass myDoneClass = new MyDoneClass(view);
-        return myDoneClass;
+        return new MyDoneClass(view);
     }
 
     @Override
